@@ -49,6 +49,11 @@ jobs:
         pip install --upgrade pip
         pip install cython buildozer
 
+        echo "[+] Initializing buildozer.spec if missing..."
+        if [ ! -f buildozer.spec ]; then
+          buildozer init
+        fi
+
         echo "[+] Building APK..."
         buildozer android debug
 
