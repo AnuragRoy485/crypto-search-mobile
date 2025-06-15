@@ -30,7 +30,7 @@ jobs:
         ANDROID_SDK_ROOT=$HOME/android-sdk
         mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
         cd "$ANDROID_SDK_ROOT/cmdline-tools"
-        curl -sSLo tools.zip https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
+        curl -sSLo tools.zip https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip || { echo "❌ Network error. Unable to download tools.zip"; exit 1; }
         unzip -q tools.zip
         rm tools.zip
         mv cmdline-tools latest
@@ -39,12 +39,12 @@ jobs:
         export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH
 
         echo "[+] Accepting licenses and installing SDK packages..."
-        yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
+        yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || { echo "❌ Failed to accept licenses"; exit 1; }
         $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager \
           "platform-tools" \
           "platforms;android-31" \
           "build-tools;31.0.0" \
-          "ndk;21.4.7075529"
+          "ndk;21.4.7075529" || { echo "❌ Failed to install Android SDK components"; exit 1; }
 
         echo "[+] Setting up Python and Buildozer..."
         python3 -m venv venv
