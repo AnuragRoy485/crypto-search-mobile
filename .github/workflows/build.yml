@@ -8,39 +8,50 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Full setup and APK build
-      run: |
-        sudo apt update
-        sudo apt install -y zip unzip libffi-dev libssl-dev \
-          autoconf automake build-essential libtool pkg-config \
-          zlib1g-dev openjdk-11-jdk python3-venv curl
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-        # Set up Android SDK
-        ANDROID_SDK_ROOT=$HOME/android-sdk
-        mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
-        cd $ANDROID_SDK_ROOT/cmdline-tools
-        curl -O https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
-        unzip commandlinetools-linux-*.zip -d tools
-        export PATH=$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/build-tools/31.0.0:$ANDROID_SDK_ROOT/cmdline-tools/tools/bin:$PATH
+      - name: Set up environment and build APK
+        shell: bash
+        run: |
+          set -e
 
-        yes | sdkmanager --sdk_root=$ANDROID_SDK_ROOT \
-          "platform-tools" "platforms;android-31" "build-tools;31.0.0"
+          echo "[+] Installing system dependencies..."
+          sudo apt update
+          sudo apt install -y zip unzip libffi-dev libssl-dev \
+            autoconf automake build-essential libtool pkg-config \
+            zlib1g-dev openjdk-11-jdk python3-venv curl
 
-        # Set up Python venv and Buildozer
-        python3 -m venv venv
-        source venv/bin/activate
-        pip install --upgrade pip
-        pip install cython
-        pip install buildozer
+          echo "[+] Installing Android command line tools..."
+          ANDROID_SDK_ROOT="$HOME/android-sdk"
+          mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
+          cd "$ANDROID_SDK_ROOT/cmdline-tools"
+          curl -sSLo tools.zip https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
+          unzip -q tools.zip -d tools
 
-        # Build APK
-        buildozer android debug
+          export PATH="$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/build-tools/31.0.0:$ANDROID_SDK_ROOT/cmdline-tools/tools/bin:$PATH"
 
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: crypto-search-apk
-        path: bin/*.apk
+          yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" \
+            "platform-tools" "platforms;android-31" "build-tools;31.0.0"
+
+          echo "[+] Creating Python virtual environment..."
+          python3 -m venv venv
+          source venv/bin/activate
+
+          echo "[+] Installing Buildozer..."
+          pip install --upgrade pip
+          pip install cython buildozer
+
+          echo "[+] Starting APK build..."
+          buildozer android debug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: crypto-search-apk
+          path: bin/*.apk
