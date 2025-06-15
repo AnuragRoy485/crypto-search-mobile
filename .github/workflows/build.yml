@@ -9,7 +9,6 @@ jobs:
 
     env:
       ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
-      PATH: ${{ github.workspace }}/android-sdk/platform-tools:${{ github.workspace }}/android-sdk/build-tools/31.0.0:${{ github.workspace }}/android-sdk/cmdline-tools/tools/bin:${{ env.PATH }}
 
     steps:
     - name: Checkout repository
@@ -32,6 +31,8 @@ jobs:
         curl -O https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
         unzip commandlinetools-linux-*.zip -d tools
 
+        export PATH=$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/build-tools/31.0.0:$ANDROID_SDK_ROOT/cmdline-tools/tools/bin:$PATH
+
         yes | sdkmanager --sdk_root=$ANDROID_SDK_ROOT \
           "platform-tools" "platforms;android-31" "build-tools;31.0.0"
 
@@ -45,6 +46,7 @@ jobs:
 
     - name: Build the APK
       run: |
+        export PATH=$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/build-tools/31.0.0:$ANDROID_SDK_ROOT/cmdline-tools/tools/bin:$PATH
         source venv/bin/activate
         buildozer android debug
 
