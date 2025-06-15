@@ -29,8 +29,9 @@ jobs:
       run: |
         buildozer android debug
 
-    - name: Upload APK
-      uses: actions/upload-artifact@v3
+        - name: Upload APK
+      uses: actions/upload-artifact@v4
       with:
         name: crypto-search-apk
         path: bin/*.apk
+
