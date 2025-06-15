@@ -45,9 +45,6 @@ jobs:
         echo "[+] Updating PATH..."
         export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH
 
-        echo "[+] Verifying internet connection before sdkmanager runs..."
-        ping -c 4 google.com || { echo "❌ Internet is unreachable, aborting build."; exit 1; }
-
         echo "[+] Accepting licenses and installing SDK packages (with retry)..."
         for i in {1..3}; do
           yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses && break || sleep 10
