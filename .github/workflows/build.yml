@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
+    - name: Checkout repository
       uses: actions/checkout@v3
 
     - name: Set up Python
@@ -19,19 +19,25 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt update
-        sudo apt install -y build-essential libssl-dev libffi-dev \
-          python3-dev git zip unzip openjdk-11-jdk autoconf libtool pkg-config \
-          zlib1g-dev
-        python -m pip install --upgrade pip
-        pip install buildozer cython
+        sudo apt install -y zip unzip libffi-dev libssl-dev \
+          autoconf automake build-essential libtool pkg-config \
+          zlib1g-dev openjdk-11-jdk python3-venv
 
-    - name: Build APK
+    - name: Install Buildozer
       run: |
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install cython
+        pip install buildozer
+
+    - name: Build the APK
+      run: |
+        source venv/bin/activate
         buildozer android debug
 
-        - name: Upload APK
-  uses: actions/upload-artifact@v4
-  with:
-    name: crypto-search-apk
-    path: bin/*.apk
-
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: crypto-search-apk
+        path: bin/*.apk
