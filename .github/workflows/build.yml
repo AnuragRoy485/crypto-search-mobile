@@ -7,9 +7,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -26,6 +23,7 @@ jobs:
           autoconf automake build-essential libtool pkg-config \
           zlib1g-dev openjdk-11-jdk python3-venv curl
 
+        ANDROID_SDK_ROOT=$HOME/android-sdk
         mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
         cd $ANDROID_SDK_ROOT/cmdline-tools
         curl -O https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
@@ -46,7 +44,9 @@ jobs:
 
     - name: Build the APK
       run: |
+        ANDROID_SDK_ROOT=$HOME/android-sdk
         export PATH=$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/build-tools/31.0.0:$ANDROID_SDK_ROOT/cmdline-tools/tools/bin:$PATH
+
         source venv/bin/activate
         buildozer android debug
 
