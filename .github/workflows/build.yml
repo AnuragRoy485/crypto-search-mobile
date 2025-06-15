@@ -7,6 +7,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
+      PATH: ${{ github.workspace }}/android-sdk/platform-tools:${{ github.workspace }}/android-sdk/build-tools/31.0.0:${{ github.workspace }}/android-sdk/cmdline-tools/tools/bin:${{ env.PATH }}
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -16,22 +20,17 @@ jobs:
       with:
         python-version: "3.10"
 
-    - name: Install dependencies and Android SDK (with AIDL)
+    - name: Install dependencies and Android SDK
       run: |
         sudo apt update
         sudo apt install -y zip unzip libffi-dev libssl-dev \
           autoconf automake build-essential libtool pkg-config \
           zlib1g-dev openjdk-11-jdk python3-venv curl
 
-        # Install Android SDK command-line tools
-        mkdir -p $HOME/android-sdk/cmdline-tools
-        cd $HOME/android-sdk/cmdline-tools
+        mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
+        cd $ANDROID_SDK_ROOT/cmdline-tools
         curl -O https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
         unzip commandlinetools-linux-*.zip -d tools
-
-        # Set up environment variables
-        export ANDROID_SDK_ROOT=$HOME/android-sdk
-        export PATH=$ANDROID_SDK_ROOT/cmdline-tools/tools/bin:$PATH
 
         yes | sdkmanager --sdk_root=$ANDROID_SDK_ROOT \
           "platform-tools" "platforms;android-31" "build-tools;31.0.0"
