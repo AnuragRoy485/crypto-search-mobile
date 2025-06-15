@@ -29,15 +29,17 @@ jobs:
 
           echo "[+] Installing Android command line tools..."
           ANDROID_SDK_ROOT="$HOME/android-sdk"
-          mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
-          cd "$ANDROID_SDK_ROOT/cmdline-tools"
+          mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools/latest"
+          cd "$ANDROID_SDK_ROOT/cmdline-tools/latest"
           curl -sSLo tools.zip https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
-          unzip -q tools.zip -d tools
+          unzip -q tools.zip
+          rm tools.zip
 
-          export PATH="$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/build-tools/31.0.0:$ANDROID_SDK_ROOT/cmdline-tools/tools/bin:$PATH"
+          export PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH"
 
-          yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" \
-            "platform-tools" "platforms;android-31" "build-tools;31.0.0"
+          echo "[+] Accepting licenses and installing SDKs..."
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-31" "build-tools;31.0.0"
 
           echo "[+] Creating Python virtual environment..."
           python3 -m venv venv
