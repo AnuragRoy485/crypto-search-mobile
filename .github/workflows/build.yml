@@ -8,52 +8,52 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
 
-      - name: Set up environment and build APK
-        shell: bash
-        run: |
-          set -e
+    - name: Set up environment and build APK
+      run: |
+        set -e
 
-          echo "[+] Installing system dependencies..."
-          sudo apt update
-          sudo apt install -y zip unzip libffi-dev libssl-dev \
-            autoconf automake build-essential libtool pkg-config \
-            zlib1g-dev openjdk-11-jdk python3-venv curl
+        echo "[+] Installing system dependencies..."
+        sudo apt update
+        sudo apt install -y zip unzip libffi-dev libssl-dev \
+          autoconf automake build-essential libtool pkg-config \
+          zlib1g-dev openjdk-11-jdk python3-venv curl
 
-          echo "[+] Installing Android command line tools..."
-          ANDROID_SDK_ROOT="$HOME/android-sdk"
-          mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools/latest"
-          cd "$ANDROID_SDK_ROOT/cmdline-tools/latest"
-          curl -sSLo tools.zip https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
-          unzip -q tools.zip
-          rm tools.zip
+        echo "[+] Downloading Android command line tools..."
+        ANDROID_SDK_ROOT=$HOME/android-sdk
+        mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
+        cd "$ANDROID_SDK_ROOT/cmdline-tools"
+        curl -sSLo tools.zip https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
+        unzip -q tools.zip
+        rm tools.zip
+        mv cmdline-tools latest
 
-          export PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH"
+        echo "[+] Updating PATH..."
+        export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH
 
-          echo "[+] Accepting licenses and installing SDKs..."
-          yes | sdkmanager --licenses
-          sdkmanager "platform-tools" "platforms;android-31" "build-tools;31.0.0"
+        echo "[+] Accepting licenses and installing SDK packages..."
+        yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
+        $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager \
+          "platform-tools" "platforms;android-31" "build-tools;31.0.0"
 
-          echo "[+] Creating Python virtual environment..."
-          python3 -m venv venv
-          source venv/bin/activate
+        echo "[+] Setting up Python and Buildozer..."
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install cython buildozer
 
-          echo "[+] Installing Buildozer..."
-          pip install --upgrade pip
-          pip install cython buildozer
+        echo "[+] Building APK..."
+        buildozer android debug
 
-          echo "[+] Starting APK build..."
-          buildozer android debug
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: crypto-search-apk
-          path: bin/*.apk
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: crypto-search-apk
+        path: bin/*.apk
