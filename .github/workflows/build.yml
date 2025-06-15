@@ -39,7 +39,8 @@ jobs:
         fi
         unzip -q tools.zip
         rm tools.zip
-        mv cmdline-tools latest
+        mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools/latest"
+        mv cmdline-tools/* "$ANDROID_SDK_ROOT/cmdline-tools/latest/"
 
         echo "[+] Updating PATH..."
         export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH
