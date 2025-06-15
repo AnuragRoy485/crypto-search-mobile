@@ -54,6 +54,10 @@ jobs:
           "build-tools;31.0.0" \
           "ndk;21.4.7075529" || { echo "❌ Failed to install Android SDK components"; exit 1; }
 
+        echo "[+] Linking build-tools manually to expected location..."
+        mkdir -p ~/.buildozer/android/platform/android-sdk/build-tools
+        cp -r $ANDROID_SDK_ROOT/build-tools/31.0.0 ~/.buildozer/android/platform/android-sdk/build-tools/
+
         echo "[+] Setting ANDROID_NDK_HOME explicitly..."
         export ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/21.4.7075529
         export PATH=$ANDROID_NDK_HOME:$PATH
