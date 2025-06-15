@@ -36,7 +36,7 @@ jobs:
         mv cmdline-tools latest
 
         echo "[+] Updating PATH..."
-        export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH
+        export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH
 
         echo "[+] Accepting licenses and installing SDK packages..."
         yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || { echo "❌ Failed to accept licenses"; exit 1; }
@@ -45,6 +45,10 @@ jobs:
           "platforms;android-31" \
           "build-tools;31.0.0" \
           "ndk;21.4.7075529" || { echo "❌ Failed to install Android SDK components"; exit 1; }
+
+        echo "[+] Setting ANDROID_NDK_HOME explicitly..."
+        export ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/21.4.7075529
+        export PATH=$ANDROID_NDK_HOME:$PATH
 
         echo "[+] Setting up Python and Buildozer..."
         python3 -m venv venv
